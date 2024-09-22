@@ -13,21 +13,21 @@ pipeline {
       
        stage('2build') {
             steps{
-             // sh "mvn clean package"
+              sh "mvn clean package"
              common("Build")
             }
         }
-        /*
+        
      stage('3CodeQualityAnalysis') {
             steps{
               sh "mvn sonar:sonar"
             }
         }
-        */
+       
         
      stage('deploy') {
             steps{
-            //   sh "mvn deploy"
+              sh "mvn deploy"
             stages("Upload Into Nexus")
             }
         }
@@ -40,7 +40,7 @@ pipeline {
             }
         }
         
-        /*
+        
         stage('deployment') {
             steps{
               sh "echo we are deploying to tomcat now ...."
@@ -48,7 +48,7 @@ pipeline {
                 deploy adapters: [tomcat9(credentialsId: 'TOMCAT-CREDENTIALS', path: '', url: 'http://18.170.222.203:8080/')], contextPath: null, onFailure: false, war: 'target/*war'
             }
         }
-        */
+        
     }
     
     post{
