@@ -7,7 +7,7 @@ pipeline {
   stages{
        stage('1GetCode') {
             steps{
-              git branch: 'main', credentialsId: 'GITHUB-CREDENTIALS', url: 'https://github.com/benadaba/maven-web-application-jf'
+              git branch: 'master', credentialsId: 'GITHUB-CREDENTIALS', url: 'https://github.com/kaffadu/JavaApplicationCICD.git'
                 }
 
         }
