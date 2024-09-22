@@ -4,7 +4,7 @@ pipeline {
     maven "maven386"
   }
    environment {
-        NEXUS_URL = '172.22.0.4'
+        NEXUS_URL = '192.168.1.123'
         NEXUS_REPOSITORY = 'nationwide-snapshot'
         NEXUS_CREDENTIALS_ID = 'nexus'
     }
