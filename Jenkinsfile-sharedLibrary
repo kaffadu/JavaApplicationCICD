@@ -1,4 +1,3 @@
-@Library('DataPandasLibrary') _
 pipeline {
   agent any 
   tools{
