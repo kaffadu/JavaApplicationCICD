@@ -8,8 +8,8 @@ pipeline {
         steps {
           // Checkout the code from GitHub repository
           checkout([$class: 'GitSCM',
-          branches: [[name: '*/master']],
-          userRemoteConfigs: [[url: 'https://github.com/kaffadu/skillsedgelab.git']]])
+            branches: [[name: '*/master']],
+            userRemoteConfigs: [[url: 'https://github.com/kaffadu/skillsedgelab.git']]])
         }
       }
 
