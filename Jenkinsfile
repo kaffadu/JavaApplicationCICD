@@ -82,6 +82,10 @@ pipeline {
             steps {
                 script {
                     def warFile = "target/${APP_NAME}.war"  // Path to WAR file for deployment
+
+                    // Accessing the credentials directly
+                    def tomcatUser = TOMCAT_USER_USR
+                    def tomcatPassword = TOMCAT_USER_PSW
                     
                     // Deploy the WAR file to Tomcat using curl
                     sh """
