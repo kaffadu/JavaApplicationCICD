@@ -95,15 +95,13 @@ pipeline {
     }
 
     post {
-        always {
-            node {
-                // Archive the built artifacts even if the build fails
-                archiveArtifacts artifacts: '**/target/*.war', allowEmptyArchive: true
-            }
-        }
+       // Archive the built artifacts even if the build fails
+        archiveArtifacts artifacts: '**/target/*.war', allowEmptyArchive: true
+      
         success {
             echo 'Build, artifact upload, and deployment successful!'
         }
+      
         failure {
             echo 'Build, artifact upload, or deployment failed.'
         }
