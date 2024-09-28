@@ -5,7 +5,7 @@ pipeline {
     }
     
     environment {
-        // SONARQUBE_SERVER = 'SonarQubeServer'  // Name of the SonarQube server configured in Jenkins
+        SONARQUBE_SERVER = 'SonarQubeServer'  // Name of the SonarQube server configured in Jenkins
         TOMCAT_USER = credentials('tomcat-user')  // Credentials ID for Tomcat authentication
         NEXUS_USER = credentials('nexus-user')  // Credentials ID for Nexus authentication
         NEXUS_URL = 'http://192.168.1.123:8081/repository/maven-releases/'  // Nexus repository URL
@@ -13,6 +13,9 @@ pipeline {
         APP_NAME = 'mywebapp'
         COMPANY_NAME = 'grantbase'
         GIT_REPO_URL = 'https://github.com/kaffadu/JavaApplicationCICD.git'
+        SONARQUBE_TOKEN = credentials('SonarQubeToken')  // Credentials ID for SonarQube token
+    }
+
     }
 
     stages {
@@ -40,8 +43,8 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 // Perform SonarQube analysis
-                withSonarQubeEnv('SonarQubeServer') {
-                    sh "mvn sonar:sonar"
+                withSonarQubeEnv(SONARQUBE_SERVER) {
+                    sh "mvn sonar:sonar -Dsonar.login=${SONARQUBE_TOKEN}"  // Use the token for authentication
                 }
             }
         }
