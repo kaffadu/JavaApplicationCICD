@@ -3,28 +3,82 @@ pipeline {
     tools{
     maven "maven386"
     }
+    
+    environment {
+        // Define environment variables
+        MAVEN_HOME = tool(name: 'Maven 3.x', type: 'maven')  // Use the installed Maven version
+        SONARQUBE_SERVER = 'SonarQubeServer'  // Name of the SonarQube server configured in Jenkins
+        TOMCAT_USER = credentials('tomcat-user')  // Credentials ID for Tomcat authentication
+        TOMCAT_URL = 'http://your-tomcat-server/manager/text'  // URL for Tomcat manager
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from GitHub repository
-                checkout([$class: 'GitSCM',
-                        branches: [[name: '*/master']],
-                        userRemoteConfigs: [[url: 'https://github.com/kaffadu/JavaApplicationCICD.git']]])
+                // Checkout the repository
+                git url: 'https://github.com/kaffadu/JavaApplicationCICD.git', branch: 'master'
             }
         }
 
-        stage('2build') {
-            steps{
-                sh "mvn clean package"
-                common("Build")
+        stage('Build') {
+            steps {
+                // Clean and package the application using Maven
+                sh "${MAVEN_HOME}/bin/mvn clean package"
             }
         }
 
-
-        stage('3CodeQualityAnalysis') {
-            steps{
-                sh "mvn sonar:sonar"
+        stage('Test') {
+            steps {
+                // Run tests using Maven
+                sh "${MAVEN_HOME}/bin/mvn test"
             }
         }
-    }  
+
+        stage('SonarQube Analysis') {
+            steps {
+                // Perform SonarQube analysis
+                withSonarQubeEnv(SONARQUBE_SERVER) {
+                    sh "${MAVEN_HOME}/bin/mvn sonar:sonar"
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                // Wait for the SonarQube analysis to complete and check the quality gate status
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Deploy to Tomcat') {
+            steps {
+                // Deploy the war file to Tomcat
+                script {
+                    def warFile = 'target/your-app-name.war'  // Path to the generated WAR file
+                    sh """
+                        curl --user ${TOMCAT_USER_USR}:${TOMCAT_USER_PSW} \
+                        --upload-file ${warFile} \
+                        ${TOMCAT_URL}/deploy?path=/your-app&update=true
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Archive the built artifacts, even if the build fails
+            archiveArtifacts artifacts: '**/target/*.war', allowEmptyArchive: true
+        }
+        success {
+            // Notify on success
+            echo 'Build and deployment successful!'
+        }
+        failure {
+            // Notify on failure
+            echo 'Build or deployment failed.'
+        }
+    }
 }
