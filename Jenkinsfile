@@ -4,7 +4,6 @@ pipeline {
     environment {
         MAVEN_HOME = tool(name: 'Maven368', type: 'maven')  // Use the installed Maven version
         SONARQUBE_SERVER = 'SonarQubeServer'  // Name of the SonarQube server configured in Jenkins
-        NEXUS_USER = credentials('admin')  // Credentials ID for Nexus
         NEXUS_URL = 'http://192.168.1.123:8081//repository/maven-releases/'  // Nexus repository URL
         TOMCAT_URL = 'http://192.168.1.123:8082/manager/text'  // URL for Tomcat manager
     }
@@ -86,7 +85,20 @@ pipeline {
         }
     }
 
-    
+   post {
+        always {
+            // Archive the built artifacts, even if the build fails
+            archiveArtifacts artifacts: '**/target/*.war', allowEmptyArchive: true
+        }
+        success {
+            // Notify on success
+            echo 'Build and deployment successful!'
+        }
+        failure {
+            // Notify on failure
+            echo 'Build or deployment failed.'
+        }
+    } 
 }
 
 
