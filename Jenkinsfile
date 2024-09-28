@@ -1,35 +1,40 @@
 pipeline {
-    agent any 
-    tools{
-    maven "maven386"
+    agent any
+    
+    tools {
+        maven 'maven386'  // Specific Maven version named 'maven386' in Jenkins Global Tool Configuration
     }
     
     environment {
-        MAVEN_HOME = tool(name: 'Maven386', type: 'maven')  // Use the installed Maven version
         SONARQUBE_SERVER = 'SonarQubeServer'  // Name of the SonarQube server configured in Jenkins
-        NEXUS_URL = 'http://192.168.1.123:8081//repository/maven-releases/'  // Nexus repository URL
+        TOMCAT_USER = credentials('tomcat-user')  // Credentials ID for Tomcat authentication
+        NEXUS_USER = credentials('nexus-user')  // Credentials ID for Nexus authentication
+        NEXUS_URL = 'http://192.168.1.123:8081/repository/maven-releases/'  // Nexus repository URL
         TOMCAT_URL = 'http://192.168.1.123:8082/manager/text'  // URL for Tomcat manager
+        APP_NAME = 'mywebapp'
+        COMPANY_NAME = 'grantbase'
+        GIT_REPO_URL = 'https://github.com/kaffadu/JavaApplicationCICD.git'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the repository
-                git url: 'https://github.com/kaffadu/JavaApplicationCICD.git', branch: 'master'
+                // Checkout code from the Git repository
+                git url: "${GIT_REPO_URL}", branch: 'main'
             }
         }
 
         stage('Build') {
             steps {
                 // Clean and package the application using Maven
-                sh "${MAVEN_HOME}/bin/mvn clean package"
+                sh "mvn clean package"
             }
         }
 
         stage('Test') {
             steps {
                 // Run tests using Maven
-                sh "${MAVEN_HOME}/bin/mvn test"
+                sh "mvn test"
             }
         }
 
@@ -37,14 +42,14 @@ pipeline {
             steps {
                 // Perform SonarQube analysis
                 withSonarQubeEnv(SONARQUBE_SERVER) {
-                    sh "${MAVEN_HOME}/bin/mvn sonar:sonar"
+                    sh "mvn sonar:sonar"
                 }
             }
         }
 
         stage('Quality Gate') {
             steps {
-                // Wait for the SonarQube analysis to complete and check the quality gate status
+                // Wait for SonarQube quality gate results
                 timeout(time: 1, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
@@ -54,14 +59,14 @@ pipeline {
         stage('Upload to Nexus') {
             steps {
                 script {
-                    def artifactVersion = "1.0.0"  // Update to the appropriate versioning
-                    def warFile = "target/mywebapp-${artifactVersion}.war"
+                    def artifactVersion = "1.0.0"  // Example version (adjust as needed)
+                    def warFile = "target/${APP_NAME}-${artifactVersion}.war"  // Path to WAR file
                     
-                    // Use Maven deploy to send artifact to Nexus
+                    // Use Maven to deploy the artifact to Nexus repository
                     sh """
-                        ${MAVEN_HOME}/bin/mvn deploy:deploy-file \
-                        -DgroupId=com.grantbase \
-                        -DartifactId=mywebapp \
+                        mvn deploy:deploy-file \
+                        -DgroupId=${COMPANY_NAME} \
+                        -DartifactId=${APP_NAME} \
                         -Dversion=${artifactVersion} \
                         -Dpackaging=war \
                         -Dfile=${warFile} \
@@ -76,34 +81,32 @@ pipeline {
 
         stage('Deploy to Tomcat') {
             steps {
-                // Deploy the war file to Tomcat
                 script {
-                    def warFile = "target/your-app-name.war"  // Path to the generated WAR file
+                    def warFile = "target/${APP_NAME}.war"  // Path to WAR file for deployment
+                    
+                    // Deploy the WAR file to Tomcat using curl
                     sh """
+                        curl --user ${TOMCAT_USER_USR}:${TOMCAT_USER_PSW} \
                         --upload-file ${warFile} \
-                        ${TOMCAT_URL}/deploy?path=/your-app&update=true
+                        ${TOMCAT_URL}/deploy?path=/${APP_NAME}&update=true
                     """
                 }
             }
         }
     }
 
-   post {
+    post {
         always {
-            // Archive the built artifacts, even if the build fails
-            archiveArtifacts artifacts: '**/target/*.war', allowEmptyArchive: true
+            node {
+                // Archive the built artifacts even if the build fails
+                archiveArtifacts artifacts: '**/target/*.war', allowEmptyArchive: true
+            }
         }
         success {
-            // Notify on success
-            echo 'Build and deployment successful!'
+            echo 'Build, artifact upload, and deployment successful!'
         }
         failure {
-            // Notify on failure
-            echo 'Build or deployment failed.'
+            echo 'Build, artifact upload, or deployment failed.'
         }
-    } 
+    }
 }
-
-
-
-
