@@ -1,15 +1,13 @@
 pipeline {
     agent any
-    tools{
-    maven "maven386"
-    }
     
     environment {
-        // Define environment variables
-        MAVEN_HOME = tool(name: 'Maven 3.x', type: 'maven')  // Use the installed Maven version
+        MAVEN_HOME = tool(name: 'Maven368', type: 'maven')  // Use the installed Maven version
         SONARQUBE_SERVER = 'SonarQubeServer'  // Name of the SonarQube server configured in Jenkins
         TOMCAT_USER = credentials('tomcat-user')  // Credentials ID for Tomcat authentication
-        TOMCAT_URL = 'http://your-tomcat-server/manager/text'  // URL for Tomcat manager
+        NEXUS_USER = credentials('nexus-user')  // Credentials ID for Nexus
+        NEXUS_URL = 'http://your-nexus-server:8081/repository/maven-releases/'  // Nexus repository URL
+        TOMCAT_URL = 'http://192.168.1.123:8082/manager/text'  // URL for Tomcat manager
     }
 
     stages {
@@ -52,11 +50,34 @@ pipeline {
             }
         }
 
+        stage('Upload to Nexus') {
+            steps {
+                script {
+                    def artifactVersion = "1.0.0"  // Update to the appropriate versioning
+                    def warFile = "target/mywebapp-${artifactVersion}.war"
+                    
+                    // Use Maven deploy to send artifact to Nexus
+                    sh """
+                        ${MAVEN_HOME}/bin/mvn deploy:deploy-file \
+                        -DgroupId=com.grantbase \
+                        -DartifactId=mywebapp \
+                        -Dversion=${artifactVersion} \
+                        -Dpackaging=war \
+                        -Dfile=${warFile} \
+                        -DrepositoryId=nexus \
+                        -Durl=${NEXUS_URL} \
+                        -Drepository.username=${NEXUS_USER_USR} \
+                        -Drepository.password=${NEXUS_USER_PSW}
+                    """
+                }
+            }
+        }
+
         stage('Deploy to Tomcat') {
             steps {
                 // Deploy the war file to Tomcat
                 script {
-                    def warFile = 'target/your-app-name.war'  // Path to the generated WAR file
+                    def warFile = "target/your-app-name.war"  // Path to the generated WAR file
                     sh """
                         curl --user ${TOMCAT_USER_USR}:${TOMCAT_USER_PSW} \
                         --upload-file ${warFile} \
@@ -82,3 +103,7 @@ pipeline {
         }
     }
 }
+
+
+
+
