@@ -86,20 +86,7 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            // Archive the built artifacts, even if the build fails
-            archiveArtifacts artifacts: '**/target/*.war', allowEmptyArchive: true
-        }
-        success {
-            // Notify on success
-            echo 'Build and deployment successful!'
-        }
-        failure {
-            // Notify on failure
-            echo 'Build or deployment failed.'
-        }
-    }
+    
 }
 
 
