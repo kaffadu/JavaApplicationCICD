@@ -1,5 +1,8 @@
 pipeline {
-    agent any
+    agent any 
+    tools{
+    maven "maven386"
+    }
     
     environment {
         MAVEN_HOME = tool(name: 'Maven368', type: 'maven')  // Use the installed Maven version
