@@ -1,6 +1,5 @@
 pipeline {
-    agent any
-    
+  agent any
     tools {
         maven 'maven386'  // Specific Maven version named 'maven386' in Jenkins Global Tool Configuration
     }
