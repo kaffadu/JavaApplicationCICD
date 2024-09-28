@@ -4,7 +4,6 @@ pipeline {
     environment {
         MAVEN_HOME = tool(name: 'Maven368', type: 'maven')  // Use the installed Maven version
         SONARQUBE_SERVER = 'SonarQubeServer'  // Name of the SonarQube server configured in Jenkins
-        TOMCAT_USER = credentials('tomcat-user')  // Credentials ID for Tomcat authentication
         NEXUS_USER = credentials('nexus-user')  // Credentials ID for Nexus
         NEXUS_URL = 'http://your-nexus-server:8081/repository/maven-releases/'  // Nexus repository URL
         TOMCAT_URL = 'http://192.168.1.123:8082/manager/text'  // URL for Tomcat manager
@@ -79,7 +78,6 @@ pipeline {
                 script {
                     def warFile = "target/your-app-name.war"  // Path to the generated WAR file
                     sh """
-                        curl --user ${TOMCAT_USER_USR}:${TOMCAT_USER_PSW} \
                         --upload-file ${warFile} \
                         ${TOMCAT_URL}/deploy?path=/your-app&update=true
                     """
