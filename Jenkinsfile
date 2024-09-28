@@ -5,7 +5,7 @@ pipeline {
     }
     
     environment {
-        MAVEN_HOME = tool(name: 'Maven368', type: 'maven')  // Use the installed Maven version
+        MAVEN_HOME = tool(name: 'Maven386', type: 'maven')  // Use the installed Maven version
         SONARQUBE_SERVER = 'SonarQubeServer'  // Name of the SonarQube server configured in Jenkins
         NEXUS_URL = 'http://192.168.1.123:8081//repository/maven-releases/'  // Nexus repository URL
         TOMCAT_URL = 'http://192.168.1.123:8082/manager/text'  // URL for Tomcat manager
