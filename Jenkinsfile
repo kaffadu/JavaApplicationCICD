@@ -15,9 +15,7 @@ pipeline {
         GIT_REPO_URL = 'https://github.com/kaffadu/JavaApplicationCICD.git'
         SONARQUBE_TOKEN = credentials('SonarQubeToken')  // Credentials ID for SonarQube token
     }
-
-    }
-
+    
     stages {
         stage('Checkout') {
             steps {
