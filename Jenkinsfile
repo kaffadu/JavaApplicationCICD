@@ -54,7 +54,7 @@ pipeline {
         //             waitForQualityGate abortPipeline: false
         //         }
         //     }
-        }
+        // }
 
         stage('Upload to Nexus') {
             steps {
