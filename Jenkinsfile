@@ -42,7 +42,7 @@ pipeline {
             steps {
                 // Perform SonarQube analysis
                 withSonarQubeEnv(SONARQUBE_SERVER) {
-                    sh "mvn sonar:sonar -Dsonar.login=${SONARQUBE_TOKEN}"  // Use the token for authentication
+                    sh "mvn sonar:sonar -Dsonar.token=${SONARQUBE_TOKEN}"  // Use the token for authentication
                 }
             }
         }
