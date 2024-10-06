@@ -47,32 +47,32 @@ pipeline {
             }
         }
 
-        stage('Quality Gate') {
-            steps {
-                script {
-                    // Query for SonarQube quality gate results and continue without blocking too long
-                    def qualityGate = waitForQualityGate()
-            
-                    if (qualityGate.status != 'OK') {
-                        echo "Quality Gate failed: ${qualityGate.status}"
-                        // Optionally: add custom behavior here, e.g., mark build as unstable
-                        currentBuild.result = 'UNSTABLE' 
-                    } else {
-                        echo "Quality Gate passed successfully."
-                    }
-                }
-            }
-        }    
-
-
         // stage('Quality Gate') {
         //     steps {
-        //         // Wait for SonarQube quality gate results
-        //         timeout(time: 10, unit: 'MINUTES') {
-        //             waitForQualityGate abortPipeline: false
+        //         script {
+        //             // Query for SonarQube quality gate results and continue without blocking too long
+        //             def qualityGate = waitForQualityGate()
+            
+        //             if (qualityGate.status != 'OK') {
+        //                 echo "Quality Gate failed: ${qualityGate.status}"
+        //                 // Optionally: add custom behavior here, e.g., mark build as unstable
+        //                 currentBuild.result = 'UNSTABLE' 
+        //             } else {
+        //                 echo "Quality Gate passed successfully."
+        //             }
         //         }
         //     }
-        // }
+        // }    
+
+
+        stage('Quality Gate') {
+            steps {
+                // Wait for SonarQube quality gate results
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: false
+                }
+            }
+        }
 
         stage('Upload to Nexus') {
             steps {
