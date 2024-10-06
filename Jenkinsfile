@@ -78,22 +78,48 @@ pipeline {
                     def artifactVersion = "0.0.2-SNAPSHOT"  // Example version (adjust as needed)
                     def warFile = "target/${APP_NAME}-${artifactVersion}.war"  // Path to WAR file
                     
-                    // Use Maven to deploy the artifact to Nexus repository
-                    sh """
-                        mvn deploy:deploy-file \
-                        -DgroupId=${COMPANY_NAME} \
-                        -DartifactId=${APP_NAME} \
-                        -Dversion=${artifactVersion} \
-                        -Dpackaging=war \
-                        -Dfile=${warFile} \
-                        -DrepositoryId=nexus \
-                        -Durl=${NEXUS_URL} \
-                        -Drepository.username=${NEXUS_USER_USR} \
-                        -Drepository.password=${NEXUS_USER_PSW}
-                    """
+                    // Bind the credentials using Jenkins Credentials Plugin
+                    withCredentials([usernamePassword(credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USER_USR', passwordVariable: 'NEXUS_USER_PSW')]) {
+                        // Use Maven to deploy the artifact to Nexus repository
+                        sh """
+                            mvn deploy:deploy-file \
+                            -DgroupId=${COMPANY_NAME} \
+                            -DartifactId=${APP_NAME} \
+                            -Dversion=${artifactVersion} \
+                            -Dpackaging=war \
+                            -Dfile=${warFile} \
+                            -DrepositoryId=nexus \
+                            -Durl=${NEXUS_URL} \
+                            -Drepository.username=${NEXUS_USER_USR} \
+                            -Drepository.password=${NEXUS_USER_PSW}
+                        """
+                    }
                 }
             }
         }
+
+        // stage('Upload to Nexus') {
+        //     steps {
+        //         script {
+        //             def artifactVersion = "0.0.2-SNAPSHOT"  // Example version (adjust as needed)
+        //             def warFile = "target/${APP_NAME}-${artifactVersion}.war"  // Path to WAR file
+                    
+        //             // Use Maven to deploy the artifact to Nexus repository
+        //             sh """
+        //                 mvn deploy:deploy-file \
+        //                 -DgroupId=${COMPANY_NAME} \
+        //                 -DartifactId=${APP_NAME} \
+        //                 -Dversion=${artifactVersion} \
+        //                 -Dpackaging=war \
+        //                 -Dfile=${warFile} \
+        //                 -DrepositoryId=nexus-user \
+        //                 -Durl=${NEXUS_URL} \
+        //                 -Drepository.username=${NEXUS_USER_USR} \
+        //                 -Drepository.password=${NEXUS_USER_PSW}
+        //             """
+        //         }
+        //     }
+        // }
 
         stage('Deploy to Tomcat') {
             steps {
