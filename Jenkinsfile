@@ -8,8 +8,8 @@ pipeline {
         SONARQUBE_SERVER = 'SonarQubeServer'  // Name of the SonarQube server configured in Jenkins
         TOMCAT_USER = credentials('tomcat-user')  // Credentials ID for Tomcat authentication
         NEXUS_USER = credentials('nexus-user')  // Credentials ID for Nexus authentication
-        NEXUS_URL = 'http://192.168.1.123:8081/repository/maven-releases/'  // Nexus repository URL
-        TOMCAT_URL = 'http://192.168.1.123:8082/manager/text'  // URL for Tomcat manager
+        NEXUS_URL = 'http://192.168.1.123:8081/repository/nationwide-release/'  // Nexus repository URL
+        TOMCAT_URL = 'http://192.168.1.123:8082'  // URL for Tomcat manager
         APP_NAME = 'maven-web-application'
         COMPANY_NAME = 'DataPandas Technologies'
         GIT_REPO_URL = 'https://github.com/kaffadu/JavaApplicationCICD.git'
