@@ -2,8 +2,8 @@
     <servers>
         <server>
             <id>nexus</id> <!-- This should match the ID in your pom.xml -->
-            <username>YourUsername</username>
-            <password>YourPassword</password>
+            <username>admin</username>
+            <password>P@ssw0rd</password>
         </server>
     </servers>
 </settings>
