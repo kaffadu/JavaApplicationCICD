@@ -1,1 +1,10 @@
+<settings>
+    <servers>
+        <server>
+            <id>nexus</id> <!-- This should match the ID in your pom.xml -->
+            <username>YourUsername</username>
+            <password>YourPassword</password>
+        </server>
+    </servers>
+</settings>
 
