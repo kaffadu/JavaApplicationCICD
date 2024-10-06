@@ -75,7 +75,7 @@ pipeline {
         stage('Upload to Nexus') {
             steps {
                 script {
-                    def artifactVersion = "0.0.2"  // Example version (adjust as needed)
+                    def artifactVersion = "0.0.2-SNAPSHOT"  // Example version (adjust as needed)
                     def warFile = "target/${APP_NAME}-${artifactVersion}.war"  // Path to WAR file
                     
                     // Use Maven to deploy the artifact to Nexus repository
