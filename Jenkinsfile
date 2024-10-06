@@ -112,7 +112,7 @@ pipeline {
         //                 -Dversion=${artifactVersion} \
         //                 -Dpackaging=war \
         //                 -Dfile=${warFile} \
-        //                 -DrepositoryId=nexus-user \
+        //                 -DrepositoryId=nexus \
         //                 -Durl=${NEXUS_URL} \
         //                 -Drepository.username=${NEXUS_USER_USR} \
         //                 -Drepository.password=${NEXUS_USER_PSW}
