@@ -52,7 +52,6 @@ pipeline {
         //         script {
         //             // Query for SonarQube quality gate results and continue without blocking too long
         //             def qualityGate = waitForQualityGate()
-            
         //             if (qualityGate.status != 'OK') {
         //                 echo "Quality Gate failed: ${qualityGate.status}"
         //                 // Optionally: add custom behavior here, e.g., mark build as unstable
@@ -64,7 +63,6 @@ pipeline {
         //     }
         // }    
 
-
         // stage('Quality Gate') {
         //     steps {
         //         // Wait for SonarQube quality gate results
@@ -74,92 +72,46 @@ pipeline {
         //     }
         // }
 
-
         stage('Upload to Nexus') {
             steps {
                 script {
                     def artifactVersion = "1.0.0"  // Example version (adjust as needed)
                     def warFile = "target/${APP_NAME}-${artifactVersion}.war"  // Path to WAR file
-            
-                    // Use the withCredentials block to securely pass the credentials
-                    withCredentials([usernamePassword(credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USER_USR', passwordVariable: 'NEXUS_USER_PSW')]) {
-                        sh """
-                            mvn deploy:deploy-file \
-                            -DgroupId=${COMPANY_NAME} \
-                            -DartifactId=${APP_NAME} \
-                            -Dversion=${artifactVersion} \
-                            -Dpackaging=war \
-                            -Dfile=${warFile} \
-                            -DrepositoryId=nexus \
-                            -Durl=${NEXUS_URL} \
-                            -Drepository.username=${NEXUS_USER_USR} \
-                            -Drepository.password=${NEXUS_USER_PSW}
-                        """
-                    }
+                    
+                    // Use Maven to deploy the artifact to Nexus repository
+                    sh """
+                        mvn deploy:deploy-file \
+                        -DgroupId=${COMPANY_NAME} \
+                        -DartifactId=${APP_NAME} \
+                        -Dversion=${artifactVersion} \
+                        -Dpackaging=war \
+                        -Dfile=${warFile} \
+                        -DrepositoryId=nexus \
+                        -Durl=${NEXUS_URL} \
+                        -Drepository.username=${NEXUS_USER_USR} \
+                        -Drepository.password=${NEXUS_USER_PSW}
+                    """
                 }
             }
         }
-        
-        // stage('Upload to Nexus') {
-        //     steps {
-        //         script {
-        //             def artifactVersion = "1.0.0"  // Example version (adjust as needed)
-        //             def warFile = "target/${APP_NAME}-${artifactVersion}.war"  // Path to WAR file
-                    
-        //             // Use Maven to deploy the artifact to Nexus repository
-        //             sh """
-        //                 mvn deploy:deploy-file \
-        //                 -DgroupId=${COMPANY_NAME} \
-        //                 -DartifactId=${APP_NAME} \
-        //                 -Dversion=${artifactVersion} \
-        //                 -Dpackaging=war \
-        //                 -Dfile=${warFile} \
-        //                 -DrepositoryId=nexus \
-        //                 -Durl=${NEXUS_URL} \
-        //                 -Drepository.username=${NEXUS_USER_USR} \
-        //                 -Drepository.password=${NEXUS_USER_PSW}
-        //             """
-        //         }
-        //     }
-        // }
-
-
-
 
         stage('Deploy to Tomcat') {
             steps {
                 script {
                     def warFile = "target/${APP_NAME}.war"  // Path to WAR file for deployment
-        
-                    // Securely pass credentials for Tomcat
-                    withCredentials([usernamePassword(credentialsId: 'tomcat-user', usernameVariable: 'TOMCAT_USER_USR', passwordVariable: 'TOMCAT_USER_PSW')]) {
-                        sh """
-                            curl --user ${TOMCAT_USER_USR}:${TOMCAT_USER_PSW} \
-                            --upload-file ${warFile} \
-                            ${TOMCAT_URL}/deploy?path=/${APP_NAME}&update=true
-                        """
-                    }
+
+                    // Accessing the credentials directly
+                    def tomcatUser = TOMCAT_USER_USR
+                    def tomcatPassword = TOMCAT_USER_PSW
+                    
+                    // Deploy the WAR file to Tomcat using curl
+                    sh """
+                        curl --user ${TOMCAT_USER_USR}:${TOMCAT_USER_PSW} \
+                        --upload-file ${warFile} \
+                        ${TOMCAT_URL}/deploy?path=/${APP_NAME}&update=true
+                    """
                 }
             }
         }
-    }   
-    //     stage('Deploy to Tomcat') {
-    //         steps {
-    //             script {
-    //                 def warFile = "target/${APP_NAME}.war"  // Path to WAR file for deployment
-
-    //                 // Accessing the credentials directly
-    //                 def tomcatUser = TOMCAT_USER_USR
-    //                 def tomcatPassword = TOMCAT_USER_PSW
-                    
-    //                 // Deploy the WAR file to Tomcat using curl
-    //                 sh """
-    //                     curl --user ${TOMCAT_USER_USR}:${TOMCAT_USER_PSW} \
-    //                     --upload-file ${warFile} \
-    //                     ${TOMCAT_URL}/deploy?path=/${APP_NAME}&update=true
-    //                 """
-    //             }
-    //         }
-    //     }
-    // }
-//}
+    }
+}
