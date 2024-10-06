@@ -10,7 +10,7 @@ pipeline {
         NEXUS_USER = credentials('nexus-user')  // Credentials ID for Nexus authentication
         NEXUS_URL = 'http://3.10.59.94:8081/repository/maven-releases/'  // Nexus repository URL
         TOMCAT_URL = 'http://3.10.59.94:8082/manager/text'  // URL for Tomcat manager
-        APP_NAME = 'mywebapp'
+        APP_NAME = 'maven-web-application'
         COMPANY_NAME = 'grantbase'
         GIT_REPO_URL = 'https://github.com/kaffadu/JavaApplicationCICD.git'
         SONARQUBE_TOKEN = credentials('SonarQubeToken')  // Credentials ID for SonarQube token
