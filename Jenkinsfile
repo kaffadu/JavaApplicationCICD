@@ -11,7 +11,7 @@ pipeline {
         NEXUS_URL = 'http://192.168.1.123:8081/repository/maven-releases'  // Nexus repository URL
         TOMCAT_URL = 'http://192.168.1.123:8082'  // URL for Tomcat manager
         APP_NAME = 'maven-web-application'
-        COMPANY_NAME = 'DataPandas Technologies'
+        COMPANY_NAME = 'com.mt'
         GIT_REPO_URL = 'https://github.com/kaffadu/JavaApplicationCICD.git'
         SONARQUBE_TOKEN = credentials('SonarQubeToken')  // Credentials ID for SonarQube token
     }
