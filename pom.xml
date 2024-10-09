@@ -99,7 +99,7 @@
 	    <repository>
 	      <id>nexus</id>
 	      <name>DataPandas Releases Nexus Repository</name>
-	      <url>http://192.168.1.123:8081/repository/app-snapshot/</url>
+	      <url>http://192.168.1.123:8081/repository/maven-releases</url>
 	    </repository>
 	    
 	    <snapshotRepository>
