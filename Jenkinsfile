@@ -47,31 +47,6 @@ pipeline {
             }
         }
 
-        // stage('Quality Gate') {
-        //     steps {
-        //         script {
-        //             // Query for SonarQube quality gate results and continue without blocking too long
-        //             def qualityGate = waitForQualityGate()
-        //             if (qualityGate.status != 'OK') {
-        //                 echo "Quality Gate failed: ${qualityGate.status}"
-        //                 // Optionally: add custom behavior here, e.g., mark build as unstable
-        //                 currentBuild.result = 'UNSTABLE' 
-        //             } else {
-        //                 echo "Quality Gate passed successfully."
-        //             }
-        //         }
-        //     }
-        // }    
-
-        // stage('Quality Gate') {
-        //     steps {
-        //         // Wait for SonarQube quality gate results
-        //         timeout(time: 10, unit: 'MINUTES') {
-        //             waitForQualityGate abortPipeline: false
-        //         }
-        //     }
-        // }
-
         stage('Upload to Nexus') {
             steps {
                 script {
@@ -98,29 +73,6 @@ pipeline {
                 }
             }
         }
-
-        // stage('Upload to Nexus') {
-        //     steps {
-        //         script {
-        //             def artifactVersion = "0.0.2-SNAPSHOT"  // Example version (adjust as needed)
-        //             def warFile = "target/${APP_NAME}-${artifactVersion}.war"  // Path to WAR file
-                    
-        //             // Use Maven to deploy the artifact to Nexus repository
-        //             sh """
-        //                 mvn deploy:deploy-file \
-        //                 -DgroupId=${COMPANY_NAME} \
-        //                 -DartifactId=${APP_NAME} \
-        //                 -Dversion=${artifactVersion} \
-        //                 -Dpackaging=war \
-        //                 -Dfile=${warFile} \
-        //                 -DrepositoryId=nexus \
-        //                 -Durl=${NEXUS_URL} \
-        //                 -Drepository.username=${NEXUS_USER_USR} \
-        //                 -Drepository.password=${NEXUS_USER_PSW} 
-        //             """
-        //         }
-        //     }
-        // }
 
         stage('Deploy to Tomcat') {
             steps {
