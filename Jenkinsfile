@@ -8,7 +8,8 @@ pipeline {
         SONARQUBE_SERVER = 'SonarQubeServer'  // Name of the SonarQube server configured in Jenkins
         TOMCAT_USER = credentials('tomcat-user')  // Credentials ID for Tomcat authentication
         NEXUS_USER = credentials('nexus-user')  // Credentials ID for Nexus authentication
-        NEXUS_URL = 'http://192.168.1.123:8081/repository/app-snapshot/'  // Nexus repository URL
+        NEXUS_URL_RELEASES = 'http://192.168.1.123:8081/repository/maven-releases/'  // Nexus releases repository URL
+        NEXUS_URL_SNAPSHOTS = 'http://192.168.1.123:8081/repository/app-snapshot/'  // Nexus snapshots repository URL
         TOMCAT_URL = 'http://192.168.1.123:8082'  // URL for Tomcat manager
         APP_NAME = 'maven-web-application'
         COMPANY_NAME = 'com.mt'
@@ -47,7 +48,7 @@ pipeline {
             }
         }
 
-        stage('Upload to Nexus') {
+        stage('Upload to Nexus Releases') {
             steps {
                 script {
                     def artifactVersion = "0.0.2-SNAPSHOT"  // Example version (adjust as needed)
@@ -55,7 +56,7 @@ pipeline {
                     
                     // Bind the credentials using Jenkins Credentials Plugin
                     withCredentials([usernamePassword(credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USER_USR', passwordVariable: 'NEXUS_USER_PSW')]) {
-                        // Use Maven to deploy the artifact to Nexus repository
+                        // Use Maven to deploy the artifact to Nexus releases repository
                         sh """
                             mvn deploy:deploy-file \
                             -DgroupId=${COMPANY_NAME} \
@@ -64,7 +65,34 @@ pipeline {
                             -Dpackaging=war \
                             -Dfile=${warFile} \
                             -DrepositoryId=nexus \
-                            -Durl=${NEXUS_URL} \
+                            -Durl=${NEXUS_URL_RELEASES} \
+                            -Drepository.username=${NEXUS_USER_USR} \
+                            -Drepository.password=${NEXUS_USER_PSW} \
+                            -Dmaven.metadata=false
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Upload to Nexus Snapshots') {
+            steps {
+                script {
+                    def artifactVersion = "0.0.2-SNAPSHOT"  // Example version (adjust as needed)
+                    def warFile = "target/${APP_NAME}-${artifactVersion}.war"  // Path to WAR file
+                    
+                    // Bind the credentials using Jenkins Credentials Plugin
+                    withCredentials([usernamePassword(credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USER_USR', passwordVariable: 'NEXUS_USER_PSW')]) {
+                        // Use Maven to deploy the artifact to Nexus snapshots repository
+                        sh """
+                            mvn deploy:deploy-file \
+                            -DgroupId=${COMPANY_NAME} \
+                            -DartifactId=${APP_NAME} \
+                            -Dversion=${artifactVersion} \
+                            -Dpackaging=war \
+                            -Dfile=${warFile} \
+                            -DrepositoryId=nexus \
+                            -Durl=${NEXUS_URL_SNAPSHOTS} \
                             -Drepository.username=${NEXUS_USER_USR} \
                             -Drepository.password=${NEXUS_USER_PSW} \
                             -Dmaven.metadata=false
