@@ -15,6 +15,7 @@ pipeline {
         COMPANY_NAME = 'com.mt'
         GIT_REPO_URL = 'https://github.com/kaffadu/JavaApplicationCICD.git'
         SONARQUBE_TOKEN = credentials('SonarQubeToken')  // Credentials ID for SonarQube token
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')  // DockerHub credentials
     }
     
     stages {
@@ -106,19 +107,46 @@ pipeline {
             steps {
                 script {
                     def warFile = "target/${APP_NAME}.war"  // Path to WAR file for deployment
-
-                    // Accessing the credentials directly
-                    def tomcatUser = TOMCAT_USER_USR
-                    def tomcatPassword = TOMCAT_USER_PSW
                     
-                    // Deploy the WAR file to Tomcat using curl
+                    withCredentials([usernamePassword(credentialsId: 'tomcat-user', usernameVariable: 'TOMCAT_USER_USR', passwordVariable: 'TOMCAT_USER_PSW')]) {
+                        // Deploy the WAR file to Tomcat using curl
+                        sh """
+                            curl --user ${TOMCAT_USER_USR}:${TOMCAT_USER_PSW} \
+                            --upload-file ${warFile} \
+                            ${TOMCAT_URL}/deploy?path=/${APP_NAME}&update=true
+                        """
+                    }
+                }
+            }
+        }
+
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def imageName = "${DOCKERHUB_USERNAME}/${APP_NAME}:latest"
+                    def dockerfilePath = 'Dockerfile'  // Adjust if your Dockerfile is in a different location
+                    
                     sh """
-                        curl --user ${TOMCAT_USER_USR}:${TOMCAT_USER_PSW} \
-                        --upload-file ${warFile} \
-                        ${TOMCAT_URL}/deploy?path=/${APP_NAME}&update=true
+                        docker build -t ${imageName} -f ${dockerfilePath} .
                     """
                 }
             }
         }
-    }
+        
+        stage('Push Docker Image to DockerHub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        def imageName = "${DOCKERHUB_USERNAME}/${APP_NAME}:latest"
+                        sh """
+                            echo ${DOCKERHUB_PASSWORD} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+                            docker push ${imageName}
+                        """
+                    }
+                }
+            }
+        }
+
+    }         
 }
