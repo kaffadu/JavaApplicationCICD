@@ -56,22 +56,30 @@ pipeline {
                     def warFile = "target/${APP_NAME}-${artifactVersion}.war"  // Path to WAR file
                     
                     // Bind the credentials using Jenkins Credentials Plugin
-                    withCredentials([usernamePassword(credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USER_USR', passwordVariable: 'NEXUS_USER_PSW')]) {
-                        // Use Maven to deploy the artifact to Nexus releases repository
+                    withCredentials([usernamePassword(credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
                         sh """
-                            mvn deploy:deploy-file \
-                            -DgroupId=${COMPANY_NAME} \
-                            -DartifactId=${APP_NAME} \
-                            -Dversion=${artifactVersion} \
-                            -Dpackaging=war \
-                            -Dfile=${warFile} \
-                            -DrepositoryId=nexus \
-                            -Durl=${NEXUS_URL_RELEASES} \
-                            -Drepository.username=${NEXUS_USER_USR} \
-                            -Drepository.password=${NEXUS_USER_PSW} \
-                            -Dmaven.metadata=false
+                            mvn clean deploy \
+                            -DskipTests \
+                            -DaltDeploymentRepository=nexus::default::http://192.168.1.123:8081/repository/maven-releases/
                         """
                     }
+
+                    // withCredentials([usernamePassword(credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USER_USR', passwordVariable: 'NEXUS_USER_PSW')]) {
+                    //     // Use Maven to deploy the artifact to Nexus releases repository
+                    //     sh """
+                    //         mvn deploy:deploy-file \
+                    //         -DgroupId=${COMPANY_NAME} \
+                    //         -DartifactId=${APP_NAME} \
+                    //         -Dversion=${artifactVersion} \
+                    //         -Dpackaging=war \
+                    //         -Dfile=${warFile} \
+                    //         -DrepositoryId=nexus \
+                    //         -Durl=${NEXUS_URL_RELEASES} \
+                    //         -Drepository.username=${NEXUS_USER_USR} \
+                    //         -Drepository.password=${NEXUS_USER_PSW} \
+                    //         -Dmaven.metadata=false
+                    //     """
+                    // }
                 }
             }
         }
@@ -83,22 +91,31 @@ pipeline {
                     def warFile = "target/${APP_NAME}-${artifactVersion}.war"  // Path to WAR file
                     
                     // Bind the credentials using Jenkins Credentials Plugin
-                    withCredentials([usernamePassword(credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USER_USR', passwordVariable: 'NEXUS_USER_PSW')]) {
-                        // Use Maven to deploy the artifact to Nexus snapshots repository
+
+                    withCredentials([usernamePassword(credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASSWORD')]) {
                         sh """
-                            mvn deploy:deploy-file \
-                            -DgroupId=${COMPANY_NAME} \
-                            -DartifactId=${APP_NAME} \
-                            -Dversion=${artifactVersion} \
-                            -Dpackaging=war \
-                            -Dfile=${warFile} \
-                            -DrepositoryId=nexus \
-                            -Durl=${NEXUS_URL_SNAPSHOTS} \
-                            -Drepository.username=${NEXUS_USER_USR} \
-                            -Drepository.password=${NEXUS_USER_PSW} \
-                            -Dmaven.metadata=false
+                            mvn clean deploy \
+                            -DskipTests \
+                            -DaltDeploymentRepository=nexus::default::http://192.168.1.123:8081/repository/app-snapshot/
                         """
                     }
+
+                    // withCredentials([usernamePassword(credentialsId: 'nexus-user', usernameVariable: 'NEXUS_USER_USR', passwordVariable: 'NEXUS_USER_PSW')]) {
+                    //     // Use Maven to deploy the artifact to Nexus snapshots repository
+                    //     sh """
+                    //         mvn deploy:deploy-file \
+                    //         -DgroupId=${COMPANY_NAME} \
+                    //         -DartifactId=${APP_NAME} \
+                    //         -Dversion=${artifactVersion} \
+                    //         -Dpackaging=war \
+                    //         -Dfile=${warFile} \
+                    //         -DrepositoryId=nexus \
+                    //         -Durl=${NEXUS_URL_SNAPSHOTS} \
+                    //         -Drepository.username=${NEXUS_USER_USR} \
+                    //         -Drepository.password=${NEXUS_USER_PSW} \
+                    //         -Dmaven.metadata=false
+                    //     """
+                    // }
                 }
             }
         }
